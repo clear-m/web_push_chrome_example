@@ -62,7 +62,7 @@
     });
 
     onMessage(messaging, (payload) => {
-      alert(`Push notification:\n${payload.notification.title}\n${payload.notification.body}`);
+      console.log(`Push notification:\n${payload.notification.title}\n${payload.notification.body}`);
     });
   </script>
 </head>
