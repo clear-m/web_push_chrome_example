@@ -20,15 +20,15 @@
     const app = initializeApp(firebaseConfig);
     const messaging = getMessaging(app);
 
-    // Путь к сервис-воркеру с учетом расположения на GitHub Pages
-    // locally there whould be only /firebase-messaging-sw.js
+    // localy there should be
+    // const swPath = '/firebase-messaging-sw.js';
+    // const swScope = '';
     const swPath = '/web_push_chrome_example/firebase-messaging-sw.js';
     const swScope = '/web_push_chrome_example/';
 
     async function requestPermissionAndGetToken() {
       const tokenLabel = document.getElementById('tokenLabel');
       try {
-        // Регистрируем сервис-воркер с правильным путем и scope
         const registration = await navigator.serviceWorker.register(swPath, { scope: swScope });
         console.log('Service Worker registered with scope:', registration.scope);
 
@@ -38,7 +38,6 @@
           return;
         }
 
-        // Запрашиваем токен, передавая регистрацию service worker
         const currentToken = await getToken(messaging, {
           vapidKey: 'BGcoqn3fdnCJ2R4utkNwkDKTbHs_DzwQWwpDCuENjmlkS7WTpGg02TSAlMIms41cxjcEa7aJqBQYddyalCjOg2Q',
           serviceWorkerRegistration: registration
@@ -46,15 +45,21 @@
 
         if (currentToken) {
           tokenLabel.textContent = `FCM Token: ${currentToken}`;
-          // TODO: Отправьте токен на сервер для подписки
+          // TODO: Отправьте токен на сервер
         } else {
           tokenLabel.textContent = 'Не удалось получить токен.';
         }
       } catch (error) {
-        console.error('Ошибка при регистрации Service Worker или получении токена:', error);
+        console.error('Ошибка:', error);
         tokenLabel.textContent = 'Ошибка при подписке на уведомления.';
       }
     }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('subscribeBtn').addEventListener('click', () => {
+        requestPermissionAndGetToken();
+      });
+    });
 
     onMessage(messaging, (payload) => {
       alert(`Push notification:\n${payload.notification.title}\n${payload.notification.body}`);
@@ -65,11 +70,5 @@
   <h1>Firebase Web Push Notifications Example</h1>
   <button id="subscribeBtn">Подписаться заново на уведомления</button>
   <p id="tokenLabel">Токен будет отображен здесь</p>
-
-  <script>
-    document.getElementById('subscribeBtn').addEventListener('click', () => {
-      requestPermissionAndGetToken();
-    });
-  </script>
 </body>
 </html>
