@@ -1,0 +1,9 @@
+{
+  "name": "Push Notification Demo",
+  "short_name": "PushDemo",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2f3ba2",
+  "gcm_sender_id": "443499005463"
+}
