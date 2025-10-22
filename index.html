@@ -20,43 +20,45 @@
     const app = initializeApp(firebaseConfig);
     const messaging = getMessaging(app);
 
-    const vapidKey = 'BGcoqn3fdnCJ2R4utkNwkDKTbHs_DzwQWwpDCuENjmlkS7WTpGg02TSAlMIms41cxjcEa7aJqBQYddyalCjOg2Q';
+    // Путь к сервис-воркеру с учетом расположения на GitHub Pages
+    // locally there whould be only /firebase-messaging-sw.js
+    const swPath = '/web_push_chrome_example/firebase-messaging-sw.js';
+    const swScope = '/web_push_chrome_example/';
 
     async function requestPermissionAndGetToken() {
       const tokenLabel = document.getElementById('tokenLabel');
-      const permission = await Notification.requestPermission();
-      if (permission === 'granted') {
-        const currentToken = await getToken(messaging, { vapidKey: vapidKey });
+      try {
+        // Регистрируем сервис-воркер с правильным путем и scope
+        const registration = await navigator.serviceWorker.register(swPath, { scope: swScope });
+        console.log('Service Worker registered with scope:', registration.scope);
+
+        const permission = await Notification.requestPermission();
+        if (permission !== 'granted') {
+          tokenLabel.textContent = 'Пользователь запретил уведомления.';
+          return;
+        }
+
+        // Запрашиваем токен, передавая регистрацию service worker
+        const currentToken = await getToken(messaging, {
+          vapidKey: 'BGcoqn3fdnCJ2R4utkNwkDKTbHs_DzwQWwpDCuENjmlkS7WTpGg02TSAlMIms41cxjcEa7aJqBQYddyalCjOg2Q',
+          serviceWorkerRegistration: registration
+        });
+
         if (currentToken) {
           tokenLabel.textContent = `FCM Token: ${currentToken}`;
-          // TODO: Отправьте токен на сервер
+          // TODO: Отправьте токен на сервер для подписки
         } else {
-          tokenLabel.textContent = 'Нет доступного токена. Разрешение нужно получить.';
+          tokenLabel.textContent = 'Не удалось получить токен.';
         }
-      } else {
-        tokenLabel.textContent = 'Пользователь запретил уведомления.';
+      } catch (error) {
+        console.error('Ошибка при регистрации Service Worker или получении токена:', error);
+        tokenLabel.textContent = 'Ошибка при подписке на уведомления.';
       }
     }
-
-    // Присваиваем функцию глобально, чтобы использовать в обработчике ниже
-    window.resubscribe = async () => {
-      await requestPermissionAndGetToken();
-    };
 
     onMessage(messaging, (payload) => {
       alert(`Push notification:\n${payload.notification.title}\n${payload.notification.body}`);
     });
-
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        //navigator.serviceWorker.register('/firebase-messaging-sw.js') // local
-        navigator.serviceWorker.register('/web_push_chrome_example/firebase-messaging-sw.js', {
-            scope: '/web_push_chrome_example/'
-        }).then(registration => {
-            console.log('Service Worker registered:', registration.scope);
-        });
-      });
-    }
   </script>
 </head>
 <body>
@@ -66,7 +68,7 @@
 
   <script>
     document.getElementById('subscribeBtn').addEventListener('click', () => {
-      window.resubscribe();
+      requestPermissionAndGetToken();
     });
   </script>
 </body>
