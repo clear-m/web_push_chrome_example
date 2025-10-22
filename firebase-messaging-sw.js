@@ -2,10 +2,9 @@
  * Give the service worker access to Firebase Messaging.
  * Note that you can only use Firebase Messaging here, other Firebase libraries are not available in the service worker.
 */
-importScripts('https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js');
-importScripts('https://www.gstatic.com/firebasejs/12.4.0/firebase-messaging.js');
+importScripts('https://www.gstatic.com/firebasejs/12.4.0/firebase-app-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/12.4.0/firebase-messaging-compat.js');
 
-// Firebase confing
 const firebaseConfig = {
     apiKey: "AIzaSyAoe-SZQ6iZj_fBgz2ZSq3bbCvuo7M5K5w",
     authDomain: "webpush-3157d.firebaseapp.com",
@@ -16,7 +15,7 @@ const firebaseConfig = {
     measurementId: "G-YTYFZ0D03F"
 };
 
-// Initialize Firebase
+// Инициализация Firebase (compat)
 firebase.initializeApp(firebaseConfig);
 const messaging = firebase.messaging();
 

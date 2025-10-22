@@ -38,9 +38,10 @@
       }
     }
 
-    async function resubscribe() {
+    // Присваиваем функцию глобально, чтобы использовать в обработчике ниже
+    window.resubscribe = async () => {
       await requestPermissionAndGetToken();
-    }
+    };
 
     onMessage(messaging, (payload) => {
       alert(`Push notification:\n${payload.notification.title}\n${payload.notification.body}`);
@@ -54,8 +55,6 @@
           });
       });
     }
-
-    requestPermissionAndGetToken();
   </script>
 </head>
 <body>
@@ -65,9 +64,8 @@
 
   <script>
     document.getElementById('subscribeBtn').addEventListener('click', () => {
-      resubscribe();
+      window.resubscribe();
     });
   </script>
-  <p>Откройте консоль браузера для вывода статуса сервис-воркера.</p>
 </body>
 </html>
