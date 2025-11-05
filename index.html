@@ -22,7 +22,7 @@
 
     // localy there should be
     // const swPath = '/firebase-messaging-sw.js';
-    // const swScope = '';
+    // const swScope = '/';
     const swPath = '/web_push_chrome_example/firebase-messaging-sw.js';
     const swScope = '/web_push_chrome_example/';
 
@@ -45,7 +45,14 @@
 
         if (currentToken) {
           tokenLabel.textContent = `FCM Token: ${currentToken}`;
-          // TODO: Отправьте токен на сервер
+          // Parse URL parameters to get parent origin, e.g., ?parentOrigin=http://localhost:3000
+          const urlParams = new URLSearchParams(window.location.search);
+          const parentOrigin = urlParams.get('parentOrigin');
+          if (parentOrigin) {
+            if (window.opener) {
+              window.opener.postMessage({ type: 'FCM_TOKEN', currentToken }, parentOrigin);
+            }
+          }
         } else {
           tokenLabel.textContent = 'Не удалось получить токен.';
         }
